@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 五 1月 19 12:53:26 2018 (+0800)
-// Last-Updated: 五 1月 19 20:49:28 2018 (+0800)
+// Last-Updated: 五 1月 19 23:23:16 2018 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 51
+//     Update #: 53
 // URL: http://wuhongyi.cn 
 
 #include "cailbration.hh"
@@ -68,7 +68,69 @@ void cailbration::SimpleCail(const char *outputname,int ref,bool fb, int verbose
   if(fb)
     {
       // 将背面归一到正面参考条
+      for (int i = 0; i < max_ch_b; ++i)
+	{
+	  her[i] = new TH2I(TString::Format("her_%02d_%02d",ref,i).Data(),"",200,-100,100,1000,0,8000);
+	  gxy = (TGraph *)file->Get(TString::Format("fb_%02d_%02d",ref,i).Data());
+	  if(!gxy)
+	    {
+	      std::cout<<"Can't find TGraph with name of "<<TString::Format("fb_%02d_%02d",i,ref).Data()<<std::endl;
+	      std::exit(1);
+	    }
 
+	  double *x = gxy->GetX();
+	  double *y = gxy->GetY();
+	  int n = gxy->GetN();
+	  
+	  std::cout<<i<<"  "<<gxy->GetN()<<std::endl;
+	  // gxy->Print();
+
+	  gg = new TGraph(n,y,x);
+	  rxy = gg->Fit("pol1","QS rob");
+	  fxy = gg->GetFunction("pol1");
+	  
+	  par0[i] = fxy->GetParameter(0);
+	  par1[i] = fxy->GetParameter(1);
+	  err0[i] = fxy->GetParError(0);
+	  err1[i] = fxy->GetParError(1);
+
+	  std::cout<<par0[i]<<"  "<<par1[i]<<"  "<<err0[i]<<"  "<<err1[i]<<std::endl;
+
+	  delete gg;
+	  gg = NULL;
+
+
+	  for(int j = 0;j < n; j++)
+	    {
+	      her[i]->Fill(x[j]-(par1[i]*y[j]+par0[i]),x[j]);
+	    }
+
+	  hhxy = (TH1D*)her[i]->ProjectionX();
+	  rh = hhxy->Fit("gaus","SQ","",-hhxy->GetStdDev(1),hhxy->GetStdDev(1));//TODO 这里应该改成拟合区间为峰高度的10%边界
+	  fhxy = (TF1*)hhxy->GetFunction("gaus");
+
+	  hmean[i] = fhxy->GetParameter(1);
+	  hsigma[i] = fhxy->GetParameter(2);
+	  
+	  std::cout<<"gaus   "<<fhxy->GetParameter(1)<<"  "<<fhxy->GetParameter(2)<<std::endl;
+
+	  delete her[i];
+	}// max_ch_b
+
+
+      std::ofstream writetxt;
+      writetxt.open(TString::Format("%s_SampleCail_2f%02d.txt",outputname,ref).Data());//ios::bin ios::app
+      if(!writetxt.is_open())
+	{
+	  std::cout<<"can't open file."<<std::endl;
+	}
+      for (int i = 0; i < max_ch_f; ++i)
+	{
+	  writetxt<<i<<"  "<<par0[i]<<"  "<<par1[i]<<"  "<<hmean[i]<<"  "<<hsigma[i]<<std::endl;
+	}
+      writetxt<<std::endl<<"ch  par/b  par/k  errorM  errorW"<<std::endl;
+      writetxt<<"Back Normalized to Front No. "<<ref<<std::endl;
+      writetxt.close();
 
     }// 背面归一到正面
   else
@@ -122,6 +184,8 @@ void cailbration::SimpleCail(const char *outputname,int ref,bool fb, int verbose
 	  hsigma[i] = fhxy->GetParameter(2);
 	  
 	  std::cout<<"gaus   "<<fhxy->GetParameter(1)<<"  "<<fhxy->GetParameter(2)<<std::endl;
+
+	  delete her[i];
 	}// for max_ch_f
 
       
@@ -136,6 +200,7 @@ void cailbration::SimpleCail(const char *outputname,int ref,bool fb, int verbose
 	  writetxt<<i<<"  "<<par0[i]<<"  "<<par1[i]<<"  "<<hmean[i]<<"  "<<hsigma[i]<<std::endl;
 	}
       writetxt<<std::endl<<"ch  par/b  par/k  errorM  errorW"<<std::endl;
+      writetxt<<"Front Normalized to Back No. "<<ref<<std::endl;
       writetxt.close();
       
       

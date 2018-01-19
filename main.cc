@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 五 1月 19 12:51:11 2018 (+0800)
-// Last-Updated: 五 1月 19 20:44:41 2018 (+0800)
+// Last-Updated: 五 1月 19 23:20:38 2018 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 9
+//     Update #: 10
 // URL: http://wuhongyi.cn 
 
 #include "cailbration.hh"
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
 
   cailbration *cail = new cailbration("data/se1.root",16,16);
   cail->SimpleCail("testse1",8,false);
-  
+  cail->SimpleCail("testse1",8,true);
   
   // and enter the event loop...
   theApp->Run();
