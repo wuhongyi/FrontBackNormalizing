@@ -4,12 +4,13 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 五 1月 19 12:53:26 2018 (+0800)
-// Last-Updated: 五 1月 19 23:23:16 2018 (+0800)
+// Last-Updated: 日 1月 21 00:05:50 2018 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 53
+//     Update #: 121
 // URL: http://wuhongyi.cn 
 
 #include "cailbration.hh"
+#include "FitPixel.hh"
 
 #include "TFile.h"
 #include "TFitResultPtr.h"
@@ -17,6 +18,11 @@
 #include "TF1.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TStyle.h"
+
+#include "Math/MinimizerOptions.h"
+#include "TLinearFitter.h"
+
 
 #include <iostream>
 #include <cstdio>
@@ -43,7 +49,12 @@ cailbration::cailbration(const char *rootfilename,int maxf,int maxb)
   // TObject->Write();
   // TH1D *h = (TH1D*)file->Get("name");
 
-
+  // TGraph *gxy = (TGraph *)file->Get("fb_08_08");
+  // double *x = gxy->GetX();
+  // double *y = gxy->GetY();
+  // int n = gxy->GetN();
+  // fitpixel = new FitPixel(n,x,y);
+  
   
 }
 
@@ -64,6 +75,10 @@ void cailbration::SimpleCail(const char *outputname,int ref,bool fb, int verbose
   TFitResultPtr rxy,rh;
 
   TGraph *gg = NULL;
+
+  gStyle->SetOptFit(1111);
+  // TF1 *ff = new TF1("ffit","[0]+[1]*x");
+  // TF1 *ff = new TF1("ffit","pol1");
   
   if(fb)
     {
@@ -85,16 +100,36 @@ void cailbration::SimpleCail(const char *outputname,int ref,bool fb, int verbose
 	  std::cout<<i<<"  "<<gxy->GetN()<<std::endl;
 	  // gxy->Print();
 
-	  gg = new TGraph(n,y,x);
-	  rxy = gg->Fit("pol1","QS rob");
-	  fxy = gg->GetFunction("pol1");
 	  
+	  // ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2", "Migrad");
+	  // ROOT::Math::MinimizerOptions::SetDefaultPrintLevel(1);
+	  // std::cout << "*  Starting  S T R E S S  with fitter : "
+	  // 	    << ROOT::Math::MinimizerOptions::DefaultMinimizerType() << " / "
+	  // 	    << ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo() << std::endl;
+	  // std::cout << "******************************************************************" << std::endl;
+
+
+	  
+	  gg = new TGraph(n,y,x);
+	  
+	  rxy = gg->Fit("pol1","QSrob");
+	  fxy = gg->GetFunction("pol1");
 	  par0[i] = fxy->GetParameter(0);
 	  par1[i] = fxy->GetParameter(1);
 	  err0[i] = fxy->GetParError(0);
 	  err1[i] = fxy->GetParError(1);
+	  prob = fxy->GetProb();
+	  // fxy->Print("fcv");
+	  
+	  // rxy = gg->Fit(ff,"QSrob");
+	  // par0[i] = ff->GetParameter(0);
+	  // par1[i] = ff->GetParameter(1);
+	  // err0[i] = ff->GetParError(0);
+	  // err1[i] = ff->GetParError(1);
 
-	  std::cout<<par0[i]<<"  "<<par1[i]<<"  "<<err0[i]<<"  "<<err1[i]<<std::endl;
+
+	  
+	  std::cout<<par0[i]<<"  "<<par1[i]<<"  "<<err0[i]<<"  "<<err1[i]<<"  "<<prob<<"  "<<fxy->GetNumberFitPoints()<<"  "<<fxy->GetChisquare()<<"  "<<gg->GetCorrelationFactor()<<std::endl;
 
 	  delete gg;
 	  gg = NULL;
@@ -206,6 +241,9 @@ void cailbration::SimpleCail(const char *outputname,int ref,bool fb, int verbose
       
     }// 正面归一到背面
 
+
+  // delete ff;
+  
 }
 
 

@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 五 1月 19 12:52:39 2018 (+0800)
-// Last-Updated: 五 1月 19 23:02:02 2018 (+0800)
+// Last-Updated: 日 1月 21 00:00:27 2018 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 13
+//     Update #: 15
 // URL: http://wuhongyi.cn 
 
 #ifndef _CAILBRATION_H_
@@ -15,6 +15,7 @@
 // 本类用于数据的正背面归一
 // 要求读取的ROOT文件...
 
+class FitPixel;
 
 class TH2I;
 class TFile;
@@ -38,7 +39,8 @@ public:
   void SimpleCail(const char *outputname,int ref,bool fb, int verbose = 0);
   
 private:
-
+  FitPixel *fitpixel;
+  
 
 protected:
   TFile *file;
@@ -51,7 +53,8 @@ protected:
   double par1[CH_MAX];
   double err0[CH_MAX];
   double err1[CH_MAX];
-
+  double prob;
+  
   TH2I *her[CH_MAX];
   double hmean[CH_MAX];
   double hsigma[CH_MAX];

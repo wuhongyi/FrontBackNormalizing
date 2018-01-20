@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 五 1月 19 12:51:11 2018 (+0800)
-// Last-Updated: 五 1月 19 23:20:38 2018 (+0800)
+// Last-Updated: 六 1月 20 15:31:01 2018 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 10
+//     Update #: 13
 // URL: http://wuhongyi.cn 
 
 #include "cailbration.hh"
@@ -80,9 +80,9 @@ int main(int argc, char *argv[])
   TRint *theApp = new TRint("Rint", &argc, argv);
 
 
-  cailbration *cail = new cailbration("data/se1.root",16,16);
-  cail->SimpleCail("testse1",8,false);
-  cail->SimpleCail("testse1",8,true);
+  cailbration *cail = new cailbration("data/le2.root",16,16);
+  cail->SimpleCail("testle2",8,false);
+  cail->SimpleCail("testle2",8,true);
   
   // and enter the event loop...
   theApp->Run();
