@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 六 1月 20 22:19:14 2018 (+0800)
-// Last-Updated: 日 1月 21 13:46:09 2018 (+0800)
+// Last-Updated: 日 1月 21 22:12:21 2018 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 24
+//     Update #: 34
 // URL: http://wuhongyi.cn 
 
 #include "FitPixel.hh"
@@ -95,19 +95,24 @@ void FitPixel::FitRobust()
 void FitPixel::CalculateRobustFitEffectHistogram()
 {
   h2_y_er = new TH2I(TString::Format("h2er_%s",nameofsave.Data()).Data(),"",200,-100,100,1000,0,8000);
-  h1_er = new TH1I(TString::Format("h1er_%s",nameofsave.Data()).Data(),"",1000,-50,50);
+  h1_er = new TH1I(TString::Format("h1er_%s",nameofsave.Data()).Data(),"",100,-50,50);
   
   for (int i = 0; i < pointn; ++i)
     {
       h2_y_er->Fill(yy[i]-(par1*xx[i]+par0),yy[i]);
       h1_er->Fill(yy[i]-(par1*xx[i]+par0));
     }
-  int left,right;
-  GetRangeAbove(h1_er,0.2,left,right);
-  h1_er->Fit("gaus","SQ","",left,right);
+  
+  // double left,right;
+  // GetRangeAbove(h1_er,0.3,left,right);
+  // h1_er->Fit("gaus","SQ","",left,right);
 
+  // h1_er->Fit("gaus","SQ","",-h1_er->GetStdDev(1),h1_er->GetStdDev(1));
+  h1_er->Fit("gaus","SQ","");
+  
   h1_er_mean = h1_er->GetFunction("gaus")->GetParameter(1);
   h1_er_sigma = h1_er->GetFunction("gaus")->GetParameter(2);
+  h1_er->SetTitle(TString::Format("mean_%f_sigma_%f",h1_er_mean,h1_er_sigma).Data());
   
   std::cout<<"h1 er: "<<h1_er_mean<<"  "<<h1_er_sigma<<std::endl;
 }
@@ -116,11 +121,12 @@ void FitPixel::CalculateRobustFitEffectHistogram()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void FitPixel::GetRangeAbove(TH1 *h,double thre,int &left,int &right)
+void FitPixel::GetRangeAbove(TH1 *h,double thre,double &left,double &right)
 {
   double maxbincontent = h->GetBinContent(h->GetMaximumBin());
-  left = h->FindFirstBinAbove(thre*maxbincontent);
-  right = h->FindLastBinAbove(thre*maxbincontent);
+  left = h->GetBinCenter(h->FindFirstBinAbove(thre*maxbincontent));
+  right = h->GetBinCenter(h->FindLastBinAbove(thre*maxbincontent));
+  // std::cout<<"Fit Range: "<<left<<"  "<<right<<std::endl;
 }
 
 

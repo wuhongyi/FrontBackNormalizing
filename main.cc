@@ -4,12 +4,13 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 五 1月 19 12:51:11 2018 (+0800)
-// Last-Updated: 六 1月 20 15:31:01 2018 (+0800)
+// Last-Updated: 日 1月 21 21:53:40 2018 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 13
+//     Update #: 19
 // URL: http://wuhongyi.cn 
 
 #include "cailbration.hh"
+#include "SelectData.hh"
 
 #include "RVersion.h"//版本判断
 #include "TApplication.h"
@@ -82,7 +83,14 @@ int main(int argc, char *argv[])
 
   cailbration *cail = new cailbration("data/le2.root",16,16);
   cail->SimpleCail("testle2",8,false);
-  cail->SimpleCail("testle2",8,true);
+  // cail->SimpleCail("testle2",8,true);
+
+  
+  SelectData *sd = new SelectData("data/le2.root",16,16);
+  sd->ReservedUniformityData("data/sel_le2.root");
+
+  cailbration *cail1 = new cailbration("data/sel_le2.root",16,16);
+  cail1->SimpleCail("test_sel_le2",8,false);
   
   // and enter the event loop...
   theApp->Run();

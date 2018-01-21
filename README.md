@@ -4,12 +4,16 @@
 ;; Author: Hongyi Wu(吴鸿毅)
 ;; Email: wuhongyi@qq.com 
 ;; Created: 五 1月 19 23:00:40 2018 (+0800)
-;; Last-Updated: 五 1月 19 23:01:50 2018 (+0800)
+;; Last-Updated: 日 1月 21 16:39:06 2018 (+0800)
 ;;           By: Hongyi Wu(吴鸿毅)
-;;     Update #: 1
+;;     Update #: 2
 ;; URL: http://wuhongyi.cn -->
 
 # README
+
+- 类SelectData对要拟合的数据进行筛选，保证在直线上的分布尽可能均匀
+- 类FitPixel对一组数据进行拟合，得到拟合参数等信息
+- 类cailbration进行正背面归一
 
 class **cailbration** 用于数据的正背面归一
 

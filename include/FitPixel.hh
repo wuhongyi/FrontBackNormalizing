@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 六 1月 20 22:18:31 2018 (+0800)
-// Last-Updated: 日 1月 21 13:33:06 2018 (+0800)
+// Last-Updated: 日 1月 21 22:54:45 2018 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 14
+//     Update #: 20
 // URL: http://wuhongyi.cn 
 
 #ifndef _FITPIXEL_H_
@@ -29,7 +29,8 @@ public:
   // 用于区分归一类型，pixel的正背面信息等
   void SetName(const char *name);
   void SetName(const TString name);
-  
+
+  // Robust Fit
   void SetRobust(int rob = -1);// 0-100
   void FitRobust();
   TGraph *GetRobustFitGraph() { return orig; }
@@ -37,6 +38,8 @@ public:
   void CalculateRobustFitEffectHistogram();
   TH2I *GetRobustFitEffectTH2() { return h2_y_er; }
   TH1I *GetRobustFitEffectTH1() { return h1_er; }
+  inline double GetRobustFitHistogramMean() { return h1_er_mean; }  
+  inline double GetRobustFitHistogramSigma() { return h1_er_sigma; }  
 
   
 public:
@@ -50,7 +53,7 @@ public:
   inline int GetPointN() { return pointn; }
 
 protected:
-  void GetRangeAbove(TH1 *h,double thre,int &left,int &right);
+  void GetRangeAbove(TH1 *h,double thre,double &left,double &right);
   
 protected:
   TString nameofsave;
