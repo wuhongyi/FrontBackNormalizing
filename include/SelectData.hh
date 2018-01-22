@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 日 1月 21 16:47:17 2018 (+0800)
-// Last-Updated: 日 1月 21 21:30:14 2018 (+0800)
+// Last-Updated: 一 1月 22 11:29:57 2018 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 6
+//     Update #: 7
 // URL: http://wuhongyi.cn 
 
 #ifndef _SELECTDATA_H_
@@ -24,10 +24,10 @@ class TH1I;
 class SelectData
 {
 public:
-  SelectData(const char *rootfilename,int nx,int ny);
+  SelectData(int nx,int ny);
   virtual ~SelectData();
 
-  void ReservedUniformityData(const char *outputrootfilename);
+  void ReservedUniformityData(const char *inputrootfilename,const char *outputrootfilename);
   
 
 protected:

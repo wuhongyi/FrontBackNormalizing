@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 日 1月 21 16:47:42 2018 (+0800)
-// Last-Updated: 日 1月 21 21:55:30 2018 (+0800)
+// Last-Updated: 一 1月 22 11:29:57 2018 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 28
+//     Update #: 29
 // URL: http://wuhongyi.cn 
 
 #include "SelectData.hh"
@@ -19,39 +19,37 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-SelectData::SelectData(const char *rootfilename,int nx,int ny)
+SelectData::SelectData(int nx,int ny)
 {
   hx = NULL;
   gxy = NULL;
   filein = NULL;
   
-  
   ChX = nx;
   ChY = ny;
-
-  filein = new TFile(rootfilename,"READ");//"RECREATE" "READ"
-  if(!filein->IsOpen())
-    {
-      std::cout<<"Can't open root file  "<<rootfilename<<std::endl;
-    }
-  
 }
 
 SelectData::~SelectData()
 {
-  filein->cd();
-  filein->Close();
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void SelectData::ReservedUniformityData(const char *outputrootfilename)
+void SelectData::ReservedUniformityData(const char *inputrootfilename,const char *outputrootfilename)
 {
+  filein = new TFile(inputrootfilename,"READ");//"RECREATE" "READ"
+  if(!filein->IsOpen())
+    {
+      std::cout<<"Can't open root file  "<<inputrootfilename<<std::endl;
+      exit(1);
+    }
+  
   std::cout<<"Running SelectData::ReservedUniformityData"<<std::endl;
   TFile *filewrite = new TFile(outputrootfilename,"RECREATE");//"RECREATE" "READ"
   if(!filewrite->IsOpen())
     {
-      std::cout<<"Can't open root file"<<std::endl;
+      std::cout<<"Can't open root file  "<<outputrootfilename<<std::endl;
     }
   
   for (int i = 0; i < ChX; ++i)
@@ -113,6 +111,9 @@ void SelectData::ReservedUniformityData(const char *outputrootfilename)
   filewrite->Close();
 
   std::cout<<"SelectData::ReservedUniformityData  ok"<<std::endl;
+
+  filein->cd();
+  filein->Close();
 }
 
 

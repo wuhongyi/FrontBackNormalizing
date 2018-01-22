@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 六 1月 20 22:19:14 2018 (+0800)
-// Last-Updated: 日 1月 21 22:12:21 2018 (+0800)
+// Last-Updated: 一 1月 22 18:08:18 2018 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 34
+//     Update #: 35
 // URL: http://wuhongyi.cn 
 
 #include "FitPixel.hh"
@@ -36,15 +36,7 @@ FitPixel::FitPixel(int n,double *x,double *y)
   xx = x;
   yy = y;
 
-
-
   orig = new TGraph(n,x,y);
-
-  
-  // for (int i = 0; i < pointn; ++i)
-  //   {
-  //     std::cout<<i<<"  "<<x[i]<<"  "<<y[i]<<std::endl;
-  //   }
 }
 
 FitPixel::~FitPixel()

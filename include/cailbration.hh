@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 五 1月 19 12:52:39 2018 (+0800)
-// Last-Updated: 日 1月 21 00:00:27 2018 (+0800)
+// Last-Updated: 一 1月 22 18:08:55 2018 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 15
+//     Update #: 19
 // URL: http://wuhongyi.cn 
 
 #ifndef _CAILBRATION_H_
@@ -26,17 +26,30 @@ class TFile;
 class cailbration
 {
 public:
-  // par rootfilename 为要读取的ROOT文件名，里面存放fb_xx_xx命名的TGraph数据
+  // 初始化，设置正背面条数
   // par maxf 为正面channel总数
   // par maxb 为背面channel总数
-  cailbration(const char *rootfilename,int maxf,int maxb);
+  cailbration(int maxf,int maxb);
   virtual ~cailbration();
 
-  // par outputname 指定输出文件的名字
+  // 对某一面进行简单自刻度
+  // par inputrootfilename 为要读取的ROOT文件名，里面存放fb_xx_xx命名的TGraph数据
+  // par outputname 指定输出文件的名字(不含文件后缀)
   // par ref 指定用来归一的参考条
   // par fb 指定用来归一参考条来自哪一面，false指背面，true指正面
-  // par verbose 用来展示冗余输出，数值越大输出越多
-  void SimpleCail(const char *outputname,int ref,bool fb, int verbose = 0);
+  // par verbose 用来展示冗余输出，数值越大输出越多（暂时没用）
+  void SimpleCail(const char *inputrootfilename,const char *outputname,int ref,bool fb, int verbose = 0);
+
+  // 将简单自刻度两面的刻度系数统一到一面
+  // par inoutfilename 指定输入输出文件的名字(不含文件后缀)
+  // par b 正面归一到背面时背面的参考条
+  // par f 背面归一到正面时正面的参考条
+  void GetSimpleCailPar(const char *inoutfilename,int b,int f);
+
+  // 利用已有的数据及归一系数计算误差情况
+  void TestSimpleCailEffect(const char *inputrootfilename,const char *parfilename,const char *outputrootfilename);
+  
+
   
 private:
   FitPixel *fitpixel;
@@ -58,6 +71,9 @@ protected:
   TH2I *her[CH_MAX];
   double hmean[CH_MAX];
   double hsigma[CH_MAX];
+
+
+
   
 };
 
