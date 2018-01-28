@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 五 1月 19 12:52:39 2018 (+0800)
-// Last-Updated: 一 1月 22 18:08:55 2018 (+0800)
+// Last-Updated: 日 1月 28 22:26:24 2018 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 19
+//     Update #: 22
 // URL: http://wuhongyi.cn 
 
 #ifndef _CAILBRATION_H_
@@ -37,8 +37,8 @@ public:
   // par outputname 指定输出文件的名字(不含文件后缀)
   // par ref 指定用来归一的参考条
   // par fb 指定用来归一参考条来自哪一面，false指背面，true指正面
-  // par verbose 用来展示冗余输出，数值越大输出越多（暂时没用）
-  void SimpleCail(const char *inputrootfilename,const char *outputname,int ref,bool fb, int verbose = 0);
+  // par fittype 用来选择拟合方式，0只进行rob拟合，1为rob之后筛选正负范围内的数据进行pol拟合
+  void SimpleCail(const char *inputrootfilename,const char *outputname,int ref,bool fb, int fittype = 0);
 
   // 将简单自刻度两面的刻度系数统一到一面
   // par inoutfilename 指定输入输出文件的名字(不含文件后缀)
@@ -50,6 +50,11 @@ public:
   void TestSimpleCailEffect(const char *inputrootfilename,const char *parfilename,const char *outputrootfilename);
   
 
+  void OverAllCail(const char *inputrootfilename,const char *outputname,bool fb);
+
+
+
+  
   
 private:
   FitPixel *fitpixel;
@@ -73,6 +78,16 @@ protected:
   double hsigma[CH_MAX];
 
 
+  double p0[CH_MAX][CH_MAX];
+  double p1[CH_MAX][CH_MAX];
+  double e0[CH_MAX][CH_MAX];
+  double e1[CH_MAX][CH_MAX];
+  double w0[CH_MAX][CH_MAX];
+  double w1[CH_MAX][CH_MAX];
+
+  double P_f[CH_MAX][2],W_f[CH_MAX][2],e_f[CH_MAX][2];
+  double P_b[CH_MAX][2],W_b[CH_MAX][2],e_b[CH_MAX][2];
+  float fNode[CH_MAX],bNode[CH_MAX];
 
   
 };
@@ -80,18 +95,3 @@ protected:
 #endif /* _CAILBRATION_H_ */
 // 
 // cailbration.hh ends here
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

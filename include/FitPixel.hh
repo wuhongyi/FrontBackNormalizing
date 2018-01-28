@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 六 1月 20 22:18:31 2018 (+0800)
-// Last-Updated: 日 1月 21 22:54:45 2018 (+0800)
+// Last-Updated: 日 1月 28 15:36:19 2018 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 20
+//     Update #: 24
 // URL: http://wuhongyi.cn 
 
 #ifndef _FITPIXEL_H_
@@ -35,13 +35,16 @@ public:
   void FitRobust();
   TGraph *GetRobustFitGraph() { return orig; }
   
-  void CalculateRobustFitEffectHistogram();
-  TH2I *GetRobustFitEffectTH2() { return h2_y_er; }
-  TH1I *GetRobustFitEffectTH1() { return h1_er; }
-  inline double GetRobustFitHistogramMean() { return h1_er_mean; }  
-  inline double GetRobustFitHistogramSigma() { return h1_er_sigma; }  
+  void SecondFit(int range = 20);// Fit after robust fit
+  TGraph *GetSecondFitGraph() { return datarange; }
 
-  
+  void CalculateFitEffectHistogram();
+  TH2I *GetFitEffectTH2() { return h2_y_er; }
+  TH1I *GetFitEffectTH1() { return h1_er; }
+  inline double GetFitHistogramMean() { return h1_er_mean; }  
+  inline double GetFitHistogramSigma() { return h1_er_sigma; }  
+
+    
 public:
   inline double GetParameter0() { return par0; }
   inline double GetParameter1() { return par1; }
@@ -62,7 +65,9 @@ protected:
   
 private:
   TGraph *orig;
-  
+  TGraph *datarange;
+
+  int fitfunction;
   double par0;
   double par1;
   double err0;
@@ -84,13 +89,3 @@ private:
 #endif /* _FITPIXEL_H_ */
 // 
 // FitPixel.hh ends here
-
-
-
-
-
-
-
-
-
-

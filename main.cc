@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 五 1月 19 12:51:11 2018 (+0800)
-// Last-Updated: 一 1月 22 18:11:50 2018 (+0800)
+// Last-Updated: 一 1月 29 01:23:57 2018 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 24
+//     Update #: 35
 // URL: http://wuhongyi.cn 
 
 #include "cailbration.hh"
@@ -80,21 +80,27 @@ int main(int argc, char *argv[])
   // Create an interactive ROOT application
   TRint *theApp = new TRint("Rint", &argc, argv);
 
-  SelectData *sd = new SelectData(16,16);
-  sd->ReservedUniformityData("data/le2.root","data/sel_le2.root");
-  sd->ReservedUniformityData("data/se2.root","data/sel_se2.root");
+  // SelectData *sd = new SelectData(16,16);
+  // sd->ReservedUniformityData("data/le0.root","data/sel_le0.root");
+  // sd->ReservedUniformityData("data/le1.root","data/sel_le1.root");
+  // sd->ReservedUniformityData("data/le2.root","data/sel_le2.root");
+  // sd->ReservedUniformityData("data/se0.root","data/sel_se0.root");
+  // sd->ReservedUniformityData("data/se1.root","data/sel_se1.root");
+  // sd->ReservedUniformityData("data/se2.root","data/sel_se2.root");
 
   cailbration *cail = new cailbration(16,16);
-  cail->SimpleCail("data/le2.root","testle2",8,false);
-  cail->SimpleCail("data/le2.root","testle2",8,true);
-  cail->GetSimpleCailPar("testle2",8,8);
-  cail->TestSimpleCailEffect("data/le2.root","testle2","result_le2.root");
+  // cail->SimpleCail("data/se2.root","testse2",8,false);
+  // cail->SimpleCail("data/se2.root","testse2",8,true);
+  // cail->GetSimpleCailPar("testse2",8,8);
+  // cail->TestSimpleCailEffect("data/se2.root","testse2","result_se2.root");
 
-  cail->SimpleCail("data/sel_le2.root","test_sel_le2",8,false);
-  cail->SimpleCail("data/sel_le2.root","test_sel_le2",8,true);
-  cail->GetSimpleCailPar("test_sel_le2",8,8);
-  cail->TestSimpleCailEffect("data/sel_le2.root","test_sel_le2","result_sel_le2.root");
+  // cail->SimpleCail("data/sel_le2.root","test_sel_le2",8,false,1);
+  // cail->SimpleCail("data/sel_le2.root","test_sel_le2",8,true,1);
+  // cail->GetSimpleCailPar("test_sel_le2",8,8);
+  // cail->TestSimpleCailEffect("data/sel_le2.root","test_sel_le2","result_sel_le2.root");
 
+  // cail->OverAllCail("data/sel_le2.root","test_sel_le2",false);
+  cail->OverAllCail("data/sel_le2.root","test_sel_le2",true);
   
   // and enter the event loop...
   theApp->Run();

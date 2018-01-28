@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 五 1月 19 12:53:26 2018 (+0800)
-// Last-Updated: 一 1月 22 21:43:18 2018 (+0800)
+// Last-Updated: 一 1月 29 01:24:13 2018 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 157
+//     Update #: 170
 // URL: http://wuhongyi.cn 
 
 #include "cailbration.hh"
@@ -49,9 +49,9 @@ cailbration::~cailbration()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void cailbration::SimpleCail(const char *inputrootfilename,const char *outputname,int ref,bool fb, int verbose)
+void cailbration::SimpleCail(const char *inputrootfilename,const char *outputname,int ref,bool fb, int fittype)
 {
-  file = new TFile(inputrootfilename,"READ");//"RECREATE" "READ"
+  file = new TFile(inputrootfilename,"READ");
   if(!file->IsOpen())
     {
       std::cout<<"Can't open root file  "<<inputrootfilename<<std::endl;
@@ -60,12 +60,6 @@ void cailbration::SimpleCail(const char *inputrootfilename,const char *outputnam
   
   TGraph *gxy = NULL;
   double *x,*y;
-  // TF1 *fxy = NULL;
-  // TF1 *fhxy = NULL;
-  // TH1D *hhxy = NULL;
-  // TFitResultPtr rxy,rh;
-
-  // TGraph *gg = NULL;
 
   // gStyle->SetOptFit(1111);
 
@@ -116,20 +110,29 @@ void cailbration::SimpleCail(const char *inputrootfilename,const char *outputnam
 	}
       
       // fitpixel->SetRobust(50);
+
       fitpixel->FitRobust();
-      fitpixel->CalculateRobustFitEffectHistogram();
+      if(fittype == 1)
+	{
+	  fitpixel->SecondFit();
+	}
+      fitpixel->CalculateFitEffectHistogram();
 
       par0[i] = fitpixel->GetParameter0();
       par1[i] = fitpixel->GetParameter1();
       err0[i] = fitpixel->GetParError0();
       err1[i] = fitpixel->GetParError1();
-      hmean[i] = fitpixel->GetRobustFitHistogramMean();
-      hsigma[i] = fitpixel->GetRobustFitHistogramSigma();
+      hmean[i] = fitpixel->GetFitHistogramMean();
+      hsigma[i] = fitpixel->GetFitHistogramSigma();
 
       filewrite->cd();
       fitpixel->GetRobustFitGraph()->Write();
-      fitpixel->GetRobustFitEffectTH2()->Write();
-      fitpixel->GetRobustFitEffectTH1()->Write();
+      if(fittype == 1)
+	{
+	  fitpixel->GetSecondFitGraph()->Write();
+	}
+      fitpixel->GetFitEffectTH2()->Write();
+      fitpixel->GetFitEffectTH1()->Write();
       filewrite->Write();
       delete fitpixel;
     }
@@ -169,139 +172,9 @@ void cailbration::SimpleCail(const char *inputrootfilename,const char *outputnam
 
   writetxt.close();
 
-
   file->cd();
   file->Close();
   file = NULL;
-  
-  // if(fb)
-  //   {
-  //     // 将背面归一到正面参考条
-      
-  //     // for (int i = 0; i < max_ch_b; ++i)
-  //     // 	{
-  //     // 	  her[i] = new TH2I(TString::Format("her_%02d_%02d",ref,i).Data(),"",200,-100,100,1000,0,8000);
-  //     // 	  gxy = (TGraph *)file->Get(TString::Format("fb_%02d_%02d",ref,i).Data());
-  //     // 	  if(!gxy)
-  //     // 	    {
-  //     // 	      std::cout<<"Can't find TGraph with name of "<<TString::Format("fb_%02d_%02d",i,ref).Data()<<std::endl;
-  //     // 	      std::exit(1);
-  //     // 	    }
-
-  //     // 	  double *x = gxy->GetX();
-  //     // 	  double *y = gxy->GetY();
-  //     // 	  int n = gxy->GetN();
-	  
-  //     // 	  std::cout<<i<<"  "<<gxy->GetN()<<std::endl;
-	  
-  //     // 	  gg = new TGraph(n,y,x);
-	  
-  //     // 	  rxy = gg->Fit("pol1","QSrob");
-  //     // 	  fxy = gg->GetFunction("pol1");
-  //     // 	  par0[i] = fxy->GetParameter(0);
-  //     // 	  par1[i] = fxy->GetParameter(1);
-  //     // 	  err0[i] = fxy->GetParError(0);
-  //     // 	  err1[i] = fxy->GetParError(1);
-  //     // 	  prob = fxy->GetProb();
-
-  //     // 	  std::cout<<par0[i]<<"  "<<par1[i]<<"  "<<err0[i]<<"  "<<err1[i]<<"  "<<prob<<"  "<<fxy->GetNumberFitPoints()<<"  "<<fxy->GetChisquare()<<"  "<<gg->GetCorrelationFactor()<<std::endl;
-
-  //     // 	  delete gg;
-  //     // 	  gg = NULL;
-
-
-  //     // 	  for(int j = 0;j < n; j++)
-  //     // 	    {
-  //     // 	      her[i]->Fill(x[j]-(par1[i]*y[j]+par0[i]),x[j]);
-  //     // 	    }
-
-  //     // 	  hhxy = (TH1D*)her[i]->ProjectionX();
-  //     // 	  rh = hhxy->Fit("gaus","SQ","",-hhxy->GetStdDev(1),hhxy->GetStdDev(1));//TODO 这里应该改成拟合区间为峰高度的10%边界
-  //     // 	  fhxy = (TF1*)hhxy->GetFunction("gaus");
-
-  //     // 	  hmean[i] = fhxy->GetParameter(1);
-  //     // 	  hsigma[i] = fhxy->GetParameter(2);
-	  
-  //     // 	  std::cout<<"gaus   "<<fhxy->GetParameter(1)<<"  "<<fhxy->GetParameter(2)<<std::endl;
-
-  //     // 	  delete her[i];
-  //     // 	}// max_ch_b
-
-
-  //     // std::ofstream writetxt;
-  //     // writetxt.open(TString::Format("%s_SampleCail_2f%02d.txt",outputname,ref).Data());//ios::bin ios::app
-  //     // if(!writetxt.is_open())
-  //     // 	{
-  //     // 	  std::cout<<"can't open file."<<std::endl;
-  //     // 	}
-  //     // for (int i = 0; i < max_ch_b; ++i)
-  //     // 	{
-  //     // 	  writetxt<<i<<"  "<<par0[i]<<"  "<<par1[i]<<"  "<<hmean[i]<<"  "<<hsigma[i]<<std::endl;
-  //     // 	}
-  //     // writetxt<<std::endl<<"ch  par/b  par/k  errorM  errorW"<<std::endl;
-  //     // writetxt<<"Back Normalized to Front No. "<<ref<<std::endl;
-  //     // writetxt.close();
-
-  //   }// 背面归一到正面
-  // else
-  //   {
-  //     // 将正面归一到背面参考条
-
-  //     TFile *filewrite = new TFile(TString::Format("f2b_SampleCail_%s.root",outputname).Data(),"RECREATE");//"RECREATE" "READ"
-  //     if(!filewrite->IsOpen())
-  // 	{
-  // 	  std::cout<<"Can't open root file"<<std::endl;
-  // 	}
-
-      
-  //     for (int i = 0; i < max_ch_f; ++i)
-  // 	{
-  // 	  file->cd();
-  // 	  TGraph *gxy = (TGraph *)file->Get(TString::Format("fb_%02d_%02d",i,ref).Data());
-  // 	  double *x = gxy->GetX();
-  // 	  double *y = gxy->GetY();
-  // 	  int n = gxy->GetN();
-  // 	  fitpixel = new FitPixel(n,x,y);
-  // 	  fitpixel->SetName(TString::Format("f2b_%02d_%02d",i,ref).Data());
-  // 	  // fitpixel->SetRobust(50);
-  // 	  fitpixel->FitRobust();
-  // 	  fitpixel->CalculateRobustFitEffectHistogram();
-
-  // 	  par0[i] = fitpixel->GetParameter0();
-  // 	  par1[i] = fitpixel->GetParameter1();
-  // 	  err0[i] = fitpixel->GetParError0();
-  // 	  err1[i] = fitpixel->GetParError1();
-  // 	  hmean[i] = fitpixel->GetRobustFitHistogramMean();
-  // 	  hsigma[i] = fitpixel->GetRobustFitHistogramSigma();
-
-  // 	  filewrite->cd();
-  // 	  fitpixel->GetRobustFitGraph()->Write();
-  // 	  fitpixel->GetRobustFitEffectTH2()->Write();
-  // 	  fitpixel->GetRobustFitEffectTH1()->Write();
-  // 	  filewrite->Write();
-  // 	  delete fitpixel;
-  // 	}
-
-  //     filewrite->cd();
-  //     filewrite->Write();
-  //     filewrite->Close();
-
-  //     std::ofstream writetxt;
-  //     writetxt.open(TString::Format("%s_SampleCail_2b%02d.txt",outputname,ref).Data());//ios::bin ios::app
-  //     if(!writetxt.is_open())
-  //     	{
-  //     	  std::cout<<"can't open file."<<std::endl;
-  //     	}
-  //     for (int i = 0; i < max_ch_f; ++i)
-  //     	{
-  //     	  writetxt<<i<<"  "<<par0[i]<<"  "<<par1[i]<<"  "<<hmean[i]<<"  "<<hsigma[i]<<std::endl;
-  //     	}
-  //     writetxt<<std::endl<<"ch  par/b  par/k  errorM  errorW"<<std::endl;
-  //     writetxt<<"Front Normalized to Back No. "<<ref<<std::endl;
-  //     writetxt.close();
-      
-  //   }// 正面归一到背面
-
 }
 
 void cailbration::GetSimpleCailPar(const char *inoutfilename,int b,int f)
@@ -457,7 +330,6 @@ void cailbration::TestSimpleCailEffect(const char *inputrootfilename,const char 
 	    hf->Fill(fx-fy,fx);
 	    hb->Fill(bx-by,by);
 	  }
-
       }
 
   file->cd();
@@ -472,6 +344,212 @@ void cailbration::TestSimpleCailEffect(const char *inputrootfilename,const char 
   hb->Write();
   filewrite->Write();
   filewrite->Close();
+}
+
+
+void cailbration::OverAllCail(const char *inputrootfilename,const char *outputname,bool fb)
+{
+  file = new TFile(inputrootfilename,"READ");
+  if(!file->IsOpen())
+    {
+      std::cout<<"Can't open root file  "<<inputrootfilename<<std::endl;
+      exit(1);
+    }
+  
+  TGraph *gxy = NULL;
+  double *x,*y;
+
+
+  for (int i = 0; i < max_ch_f; ++i)
+    for (int j = 0; j < max_ch_b; ++j)
+    {
+      file->cd();
+      if(fb)//to front
+	{
+	  gxy = (TGraph *)file->Get(TString::Format("fb_%02d_%02d",i,j).Data());
+	  y = gxy->GetX();
+	  x = gxy->GetY();
+	}
+      else// to back
+	{
+	  gxy = (TGraph *)file->Get(TString::Format("fb_%02d_%02d",i,j).Data());
+	  x = gxy->GetX();
+	  y = gxy->GetY();
+	}
+
+      fitpixel = new FitPixel(gxy->GetN(),x,y);
+      
+      fitpixel->FitRobust();
+      fitpixel->SecondFit();
+
+      p0[i][j] = fitpixel->GetParameter0();
+      p1[i][j] = fitpixel->GetParameter1();
+      e0[i][j] = fitpixel->GetParError0();
+      e1[i][j] = fitpixel->GetParError1();
+      w0[i][j] = fitpixel->GetParWeight0();
+      w1[i][j] = fitpixel->GetParWeight1();
+
+      delete fitpixel;
+    }
+
+  file->cd();
+  file->Close();
+  file = NULL;
+
+
+  int ref;
+  if(fb)//to front
+    {
+      ref = max_ch_f/2;
+    }
+  else
+    {
+      ref = max_ch_b/2;
+    }
+
+
+  double K1, B1, ek1, eb1;
+  double K2, B2, ek2, eb2;
+  double K3, B3, ek3, eb3;
+  double Ktmp, Wktp, Btmp, Wbtp;
+  
+  
+  if(fb)
+    {//背面归一到正面
+      for (int q = 0; q < max_ch_b; ++q)
+	{
+      
+	  W_f[q][0] = w0[q][ref];
+	  W_f[q][1] = w1[q][ref];
+	  P_f[q][0] = W_f[q][0] * p0[q][ref];
+	  P_f[q][1] = W_f[q][1] * p1[q][ref];
+	  e_f[q][0] = 0;
+	  e_f[q][1] = 0;
+	  fNode[q] = 0.1;
+
+	  for (int i = 0; i < max_ch_b; ++i)
+	    {
+	      if(i == q) continue;
+	      for (int j = 0; j < max_ch_f; ++j)
+		{
+		  if(j == ref) continue;
+
+		  // if() continue;//这里应该添加判断拟合是否有效，无效的pixel不参与计算权重
+
+		  fNode[q] += 1;
+
+		  K1 = p1[j][q];
+		  B1 = p0[j][q];
+		  ek1 = e1[j][q];
+		  eb1 = e0[j][q];
+        
+		  K2 = p1[j][i];
+		  B2 = p0[j][i];
+		  ek2 = e1[j][i];
+		  eb2 = e0[j][i];
+
+		  K3 = p1[ref][i];
+		  B3 = p0[ref][i];
+		  ek3 = e1[ref][i];
+		  eb3 = e0[ref][i];
+
+		  Ktmp = K1*K3/K2;
+		  Wktp = 1./((K3*ek1/K2)*(K3*ek1/K2)+(K1*ek3/K2)*(K1*ek3/K2)+(K1*K3*ek2/K2/K2)*(K1*K3*ek2/K2/K2));
+		  Btmp = B3+(B1-B2)*K3/K2;
+		  Wbtp = 1./(eb3*eb3+((B1-B2)*ek3/K2)*((B1-B2)*ek3/K2)+(K3*eb1/K2)*(K3*eb1/K2)+(K3*eb2/K2)*(K3*eb2/K2)+((B1-B2)*K3*ek2/K2/K2)*((B1-B2)*K3*ek2/K2/K2));
+		  P_f[q][1] += Wktp*Ktmp;
+		  P_f[q][0] += Wbtp*Btmp;
+		  W_f[q][1] += Wktp;
+		  W_f[q][0] += Wbtp;		  
+		
+		}// for j
+	    }// for i
+
+	  if(W_f[q][1]>0)
+	    {
+	      P_f[q][1] /= W_f[q][1];
+	      e_f[q][1] = 1./TMath::Sqrt( W_f[q][1]);
+	    }
+	  if(W_f[q][0]>0)
+	    {
+	      P_f[q][0] /= W_f[q][0];
+	      e_f[q][0] = 1./TMath::Sqrt( W_f[q][0]);
+	    }
+	  printf("front ch %02d;k: %8.6f +/- %8.6f, b: %8.4f +/- %8.4f, n: %10.1f\n",q,P_f[q][1],e_f[q][1],P_f[q][0],e_f[q][0],fNode[q]);
+
+	}// for q
+
+    }//fb
+
+
+  
+  if(!fb)
+    {//正面归一到背面
+      for (int q = 0; q < max_ch_f; ++q)
+	{
+      
+	  W_f[q][0] = w0[q][ref];
+	  W_f[q][1] = w1[q][ref];
+	  P_f[q][0] = W_f[q][0] * p0[q][ref];
+	  P_f[q][1] = W_f[q][1] * p1[q][ref];
+	  e_f[q][0] = 0;
+	  e_f[q][1] = 0;
+	  fNode[q] = 0.1;
+
+	  for (int i = 0; i < max_ch_f; ++i)
+	    {
+	      if(i == q) continue;
+	      for (int j = 0; j < max_ch_b; ++j)
+		{
+		  if(j == ref) continue;
+
+		  // if() continue;//这里应该添加判断拟合是否有效，无效的pixel不参与计算权重
+
+		  fNode[q] += 1;
+
+		  K1 = p1[q][j];
+		  B1 = p0[q][j];
+		  ek1 = e1[q][j];
+		  eb1 = e0[q][j];
+        
+		  K2 = p1[i][j];
+		  B2 = p0[i][j];
+		  ek2 = e1[i][j];
+		  eb2 = e0[i][j];
+
+		  K3 = p1[i][ref];
+		  B3 = p0[i][ref];
+		  ek3 = e1[i][ref];
+		  eb3 = e0[i][ref];
+
+		  Ktmp = K1*K3/K2;
+		  Wktp = 1./((K3*ek1/K2)*(K3*ek1/K2)+(K1*ek3/K2)*(K1*ek3/K2)+(K1*K3*ek2/K2/K2)*(K1*K3*ek2/K2/K2));
+		  Btmp = B3+(B1-B2)*K3/K2;
+		  Wbtp = 1./(eb3*eb3+((B1-B2)*ek3/K2)*((B1-B2)*ek3/K2)+(K3*eb1/K2)*(K3*eb1/K2)+(K3*eb2/K2)*(K3*eb2/K2)+((B1-B2)*K3*ek2/K2/K2)*((B1-B2)*K3*ek2/K2/K2));
+		  P_f[q][1] += Wktp*Ktmp;
+		  P_f[q][0] += Wbtp*Btmp;
+		  W_f[q][1] += Wktp;
+		  W_f[q][0] += Wbtp;		  
+		
+		}// for j
+	    }// for i
+
+	  if(W_f[q][1]>0)
+	    {
+	      P_f[q][1] /= W_f[q][1];
+	      e_f[q][1] = 1./TMath::Sqrt( W_f[q][1]);
+	    }
+	  if(W_f[q][0]>0)
+	    {
+	      P_f[q][0] /= W_f[q][0];
+	      e_f[q][0] = 1./TMath::Sqrt( W_f[q][0]);
+	    }
+	  printf("front ch %02d;k: %8.6f +/- %8.6f, b: %8.4f +/- %8.4f, n: %10.1f\n",q,P_f[q][1],e_f[q][1],P_f[q][0],e_f[q][0],fNode[q]);
+
+	}// for q
+
+    }//!fb
+  
 }
 
 

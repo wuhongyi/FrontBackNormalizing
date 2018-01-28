@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 六 1月 20 22:19:14 2018 (+0800)
-// Last-Updated: 一 1月 22 18:08:18 2018 (+0800)
+// Last-Updated: 日 1月 28 15:47:22 2018 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 35
+//     Update #: 44
 // URL: http://wuhongyi.cn 
 
 #include "FitPixel.hh"
@@ -24,6 +24,7 @@
 FitPixel::FitPixel(int n,double *x,double *y)
 {
   robust = -1;
+  fitfunction = 0;
   par0 = 0;
   par1 = 0;
   err0 = 0;
@@ -31,6 +32,7 @@ FitPixel::FitPixel(int n,double *x,double *y)
   orig = NULL;
   h2_y_er = NULL;
   h1_er = NULL;
+  datarange = NULL;
   
   pointn = n;
   xx = x;
@@ -42,6 +44,7 @@ FitPixel::FitPixel(int n,double *x,double *y)
 FitPixel::~FitPixel()
 {
   if(orig != NULL) delete orig;
+  if(datarange != NULL) delete datarange;
   if(h2_y_er != NULL) delete h2_y_er;
   if(h1_er != NULL) delete h1_er;
 }
@@ -70,6 +73,8 @@ void FitPixel::SetRobust(int rob)
 
 void FitPixel::FitRobust()
 {
+  fitfunction = 1;
+  
   if(robust == -1)
     orig->Fit("pol1","Qrob");
   else
@@ -84,10 +89,12 @@ void FitPixel::FitRobust()
   std::cout<<"FitRobust: "<<par0<<"  "<<par1<<std::endl;
 }
 
-void FitPixel::CalculateRobustFitEffectHistogram()
+void FitPixel::CalculateFitEffectHistogram()
 {
-  h2_y_er = new TH2I(TString::Format("h2er_%s",nameofsave.Data()).Data(),"",200,-100,100,1000,0,8000);
-  h1_er = new TH1I(TString::Format("h1er_%s",nameofsave.Data()).Data(),"",100,-50,50);
+  if(fitfunction == 0) return;
+  
+  h2_y_er = new TH2I(TString::Format("h2er_%s_f%d",nameofsave.Data(),fitfunction).Data(),"",200,-100,100,1000,0,8000);
+  h1_er = new TH1I(TString::Format("h1er_%s_f%d",nameofsave.Data(),fitfunction).Data(),"",100,-50,50);
   
   for (int i = 0; i < pointn; ++i)
     {
@@ -109,7 +116,43 @@ void FitPixel::CalculateRobustFitEffectHistogram()
   std::cout<<"h1 er: "<<h1_er_mean<<"  "<<h1_er_sigma<<std::endl;
 }
 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+void FitPixel::SecondFit(int range)
+{
+  fitfunction = 2;
+  
+  if(datarange != NULL)
+    {
+      delete datarange;
+      datarange = NULL;
+    }
+
+  datarange = new TGraph;
+
+  for (int i = 0; i < pointn; ++i)
+    {
+      if(TMath::Abs(par0+par1*xx[i]-yy[i])/(1+par1*par1) <= range)
+	{
+	  datarange->SetPoint(datarange->GetN(),xx[i],yy[i]);
+	}
+    }
+
+  // std::cout<<"Point:  "<<pointn<<"  "<<datarange->GetN()<<std::endl;
+  
+  datarange->Fit("pol1","Q");
+
+  datarange->SetName(TString::Format("datarange_%s",nameofsave.Data()).Data());
+  datarange->SetTitle(TString::Format("b_%f_k_%f_be_%f_bk_%f",par0,par1,err0,err1).Data());
+  
+  par0 = datarange->GetFunction("pol1")->GetParameter(0);
+  par1 = datarange->GetFunction("pol1")->GetParameter(1);
+
+  err0 = datarange->GetFunction("pol1")->GetParError(0);
+  err1 = datarange->GetFunction("pol1")->GetParError(1);
+
+  std::cout<<"Second Fit: "<<par0<<"  "<<par1<<"  "<<err0<<"  "<<err1<<std::endl;
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -125,13 +168,3 @@ void FitPixel::GetRangeAbove(TH1 *h,double thre,double &left,double &right)
 
 // 
 // FitPixel.cc ends here
-
-
-
-
-
-
-
-
-
-
