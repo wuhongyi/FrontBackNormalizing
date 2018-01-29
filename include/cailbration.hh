@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 五 1月 19 12:52:39 2018 (+0800)
-// Last-Updated: 日 1月 28 22:26:24 2018 (+0800)
+// Last-Updated: 二 1月 30 02:15:29 2018 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 22
+//     Update #: 26
 // URL: http://wuhongyi.cn 
 
 #ifndef _CAILBRATION_H_
@@ -49,10 +49,18 @@ public:
   // 利用已有的数据及归一系数计算误差情况
   void TestSimpleCailEffect(const char *inputrootfilename,const char *parfilename,const char *outputrootfilename);
   
-
+  // 对某一面进行整体自刻度
+  // par inputrootfilename 为要读取的ROOT文件名，里面存放fb_xx_xx命名的TGraph数据
+  // par outputname 指定输出文件的名字(不含文件后缀)
+  // par fb 指定用来归一参考条来自哪一面，false指背面，true指正面
   void OverAllCail(const char *inputrootfilename,const char *outputname,bool fb);
 
+  // 将整体自刻度两面的刻度系数统一到一面
+  // par inoutfilename 指定输入输出文件的名字(不含文件后缀)
+  void GetOverAllCailPar(const char *inoutfilename);
 
+  // 利用已有的数据及归一系数计算误差情况
+  void TestOverAllCailEffect(const char *inputrootfilename,const char *parfilename,const char *outputrootfilename);
 
   
   
@@ -86,8 +94,9 @@ protected:
   double w1[CH_MAX][CH_MAX];
 
   double P_f[CH_MAX][2],W_f[CH_MAX][2],e_f[CH_MAX][2];
-  double P_b[CH_MAX][2],W_b[CH_MAX][2],e_b[CH_MAX][2];
-  float fNode[CH_MAX],bNode[CH_MAX];
+  // double P_b[CH_MAX][2],W_b[CH_MAX][2],e_b[CH_MAX][2];
+  float fNode[CH_MAX];
+  // float bNode[CH_MAX];
 
   
 };

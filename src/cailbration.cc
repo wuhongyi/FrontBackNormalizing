@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 五 1月 19 12:53:26 2018 (+0800)
-// Last-Updated: 一 1月 29 01:24:13 2018 (+0800)
+// Last-Updated: 二 1月 30 02:15:28 2018 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 170
+//     Update #: 174
 // URL: http://wuhongyi.cn 
 
 #include "cailbration.hh"
@@ -155,7 +155,7 @@ void cailbration::SimpleCail(const char *inputrootfilename,const char *outputnam
       std::cout<<"can't open file."<<std::endl;
       exit(1);
     }
-  for (int i = 0; i < max_ch_f; ++i)
+  for (int i = 0; i < max_ch; ++i)
     {
       writetxt<<i<<"  "<<par0[i]<<"  "<<par1[i]<<"  "<<hmean[i]<<"  "<<hsigma[i]<<std::endl;
     }
@@ -398,13 +398,16 @@ void cailbration::OverAllCail(const char *inputrootfilename,const char *outputna
 
 
   int ref;
+  int max_ch;
   if(fb)//to front
     {
       ref = max_ch_f/2;
+      max_ch = max_ch_b;
     }
   else
     {
       ref = max_ch_b/2;
+      max_ch = max_ch_f;
     }
 
 
@@ -549,8 +552,212 @@ void cailbration::OverAllCail(const char *inputrootfilename,const char *outputna
 	}// for q
 
     }//!fb
-  
+
+
+  std::ofstream writetxt;
+  if(fb)
+    {
+      writetxt.open(TString::Format("%s_OverAllCail_2f%02d.txt",outputname,ref).Data());
+    }
+  else
+    {
+      writetxt.open(TString::Format("%s_OverAllCail_2b%02d.txt",outputname,ref).Data());
+    }
+  if(!writetxt.is_open())
+    {
+      std::cout<<"can't open file."<<std::endl;
+      exit(1);
+    }
+  for (int i = 0; i < max_ch; ++i)
+    {
+      writetxt<<i<<"  "<<P_f[i][0]<<"  "<<P_f[i][1]<<"  "<<e_f[i][0]<<"  "<<e_f[i][1]<<std::endl;
+    }
+  writetxt<<std::endl<<"ch  par/b  par/k  errorb  errork"<<std::endl;
+
+  if(fb)
+    {
+      writetxt<<"Back Normalized to Front No. "<<ref<<std::endl;
+    }
+  else
+    {
+      writetxt<<"Front Normalized to Back No. "<<ref<<std::endl;
+    }
+
+  writetxt.close();
 }
+
+
+void cailbration::GetOverAllCailPar(const char *inoutfilename)
+{
+  double par2b[CH_MAX][2];
+  double par2f[CH_MAX][2];
+
+  double tempdouble;
+  double tempint;
+  
+  std::ifstream readtxt;
+  
+  readtxt.open(TString::Format("%s_OverAllCail_2b%02d.txt",inoutfilename,max_ch_b/2).Data());
+  if(!readtxt.is_open())
+    {
+      std::cout<<"can't open file."<<std::endl;
+    }
+  for (int i = 0; i < max_ch_f; ++i)
+    {
+      readtxt>>tempint>>par2b[i][0]>>par2b[i][1]>>tempdouble>>tempdouble;
+    }
+  readtxt.close();
+
+  readtxt.open(TString::Format("%s_OverAllCail_2f%02d.txt",inoutfilename,max_ch_f/2).Data());
+  if(!readtxt.is_open())
+    {
+      std::cout<<"can't open file."<<std::endl;
+    }
+  for (int i = 0; i < max_ch_b; ++i)
+    {
+      readtxt>>tempint>>par2f[i][0]>>par2f[i][1]>>tempdouble>>tempdouble;
+    }
+  readtxt.close();
+  
+
+  std::ofstream writetxt;
+  
+  writetxt.open(TString::Format("%s_OverAllCail_2f.txt",inoutfilename).Data());
+  if(!writetxt.is_open())
+    {
+      std::cout<<"can't open file."<<std::endl;
+      exit(1);
+    }
+  for (int i = 0; i < max_ch_f; ++i)
+    {
+      writetxt<<i<<"  "<<par2f[max_ch_f/2][1]*par2b[i][0]+par2f[max_ch_f/2][0]<<"  "<<par2f[max_ch_f/2][1]*par2b[i][1]<<std::endl;
+    }
+  for (int i = 0; i < max_ch_b; ++i)
+    {
+      writetxt<<i<<"  "<<par2f[i][0]<<"  "<<par2f[i][1]<<std::endl;
+    }
+  writetxt.close();
+
+
+  writetxt.open(TString::Format("%s_OverAllCail_2b.txt",inoutfilename).Data());
+  if(!writetxt.is_open())
+    {
+      std::cout<<"can't open file."<<std::endl;
+      exit(1);
+    }
+  for (int i = 0; i < max_ch_f; ++i)
+    {
+      writetxt<<i<<"  "<<par2b[i][0]<<"  "<<par2b[i][1]<<std::endl;
+    }
+  for (int i = 0; i < max_ch_b; ++i)
+    {
+      writetxt<<i<<"  "<<par2b[max_ch_b/2][1]*par2f[i][0]+par2b[max_ch_b/2][0]<<"  "<<par2b[max_ch_b/2][1]*par2f[i][1]<<std::endl;
+    }
+  writetxt.close();
+
+}
+
+
+void cailbration::TestOverAllCailEffect(const char *inputrootfilename,const char *parfilename,const char *outputrootfilename)
+{
+  TGraph *gxy = NULL;
+  double *x,*y;
+  double fx,fy;
+  double bx,by;
+
+  double par2b[2*CH_MAX][2];
+  double par2f[2*CH_MAX][2];
+  double tempint;
+  
+  std::ifstream readtxt;
+  
+  readtxt.open(TString::Format("%s_OverAllCail_2b.txt",parfilename).Data());
+  if(!readtxt.is_open())
+    {
+      std::cout<<"can't open file."<<std::endl;
+    }
+  for (int i = 0; i < max_ch_f; ++i)
+    {
+      readtxt>>tempint>>par2b[i][0]>>par2b[i][1];
+    }
+  for (int i = 0; i < max_ch_b; ++i)
+    {
+      readtxt>>tempint>>par2b[i+max_ch_f][0]>>par2b[i+max_ch_f][1];
+    }
+  readtxt.close();
+
+  readtxt.open(TString::Format("%s_OverAllCail_2f.txt",parfilename).Data());
+  if(!readtxt.is_open())
+    {
+      std::cout<<"can't open file."<<std::endl;
+    }
+  for (int i = 0; i < max_ch_f; ++i)
+    {
+      readtxt>>tempint>>par2f[i][0]>>par2f[i][1];
+    }
+  for (int i = 0; i < max_ch_b; ++i)
+    {
+      readtxt>>tempint>>par2f[i+max_ch_f][0]>>par2f[i+max_ch_f][1];
+    }
+  readtxt.close();
+
+  
+  file = new TFile(inputrootfilename,"READ");
+  if(!file->IsOpen())
+    {
+      std::cout<<"Can't open root file  "<<inputrootfilename<<std::endl;
+      exit(1);
+    }
+
+  TFile *filewrite = NULL;
+  filewrite = new TFile(outputrootfilename,"RECREATE");
+  if(!filewrite->IsOpen())
+    {
+      std::cout<<"Can't open root file"<<std::endl;
+      exit(1);
+    }
+  TH2I *hf = new TH2I("hf","front vs #DeltaE",1000,-50,50,2000,0,8000);
+  TH2I *hb = new TH2I("hb","back vs #DeltaE",1000,-50,50,2000,0,8000);
+
+  TH2I *hxyf = new TH2I("hxyf","",2000,0,8000,2000,0,8000);
+  TH2I *hxyb = new TH2I("hxyb","",2000,0,8000,2000,0,8000);
+  
+  for (int i = 0; i < max_ch_f; ++i)
+    for (int j = 0; j < max_ch_b; ++j)
+      {
+	file->cd();
+	gxy = (TGraph *)file->Get(TString::Format("fb_%02d_%02d",i,j).Data());
+	x = gxy->GetX();
+	y = gxy->GetY();
+
+	for (int k = 0; k < gxy->GetN(); ++k)
+	  {
+	    fx = par2f[i][0]+par2f[i][1]*x[k];
+	    fy = par2f[max_ch_f+j][0]+par2f[max_ch_f+j][1]*y[k];
+	    bx = par2b[i][0]+par2b[i][1]*x[k];
+	    by = par2b[max_ch_f+j][0]+par2b[max_ch_f+j][1]*y[k];
+
+	    hxyf->Fill(fx,fy);
+	    hxyb->Fill(bx,by);
+	    hf->Fill(fx-fy,fx);
+	    hb->Fill(bx-by,by);
+	  }
+      }
+
+  file->cd();
+  file->Close();
+  file = NULL;
+  
+  
+  filewrite->cd();
+  hxyf->Write();
+  hxyb->Write();
+  hf->Write();
+  hb->Write();
+  filewrite->Write();
+  filewrite->Close();
+}
+  
 
 
 
