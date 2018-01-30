@@ -4,9 +4,9 @@
 ## Author: Hongyi Wu(吴鸿毅)
 ## Email: wuhongyi@qq.com 
 ## Created: 五 1月 19 12:14:48 2018 (+0800)
-## Last-Updated: 六 1月 20 21:49:49 2018 (+0800)
+## Last-Updated: 二 1月 30 22:58:45 2018 (+0800)
 ##           By: Hongyi Wu(吴鸿毅)
-##     Update #: 7
+##     Update #: 8
 ## URL: http://wuhongyi.cn 
 
 
@@ -50,6 +50,9 @@ $(OBJ): $(MainFile) $(SourceFile)
 clean:
 	@echo "Removing linked and compiled files......" 
 	rm -f *.o *~ $(OBJ)
+
+clear:
+	rm -f *.txt *.root
 
 
 

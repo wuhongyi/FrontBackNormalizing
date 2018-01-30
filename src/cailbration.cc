@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 五 1月 19 12:53:26 2018 (+0800)
-// Last-Updated: 二 1月 30 02:15:28 2018 (+0800)
+// Last-Updated: 二 1月 30 23:21:10 2018 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 174
+//     Update #: 175
 // URL: http://wuhongyi.cn 
 
 #include "cailbration.hh"
@@ -68,12 +68,12 @@ void cailbration::SimpleCail(const char *inputrootfilename,const char *outputnam
   
   if(fb)
     {
-      filewrite = new TFile(TString::Format("b2f_SampleCail_%s.root",outputname).Data(),"RECREATE");
+      filewrite = new TFile(TString::Format("b2f_SimpleCail_%s.root",outputname).Data(),"RECREATE");
       max_ch = max_ch_b;
     }
   else
     {
-      filewrite = new TFile(TString::Format("f2b_SampleCail_%s.root",outputname).Data(),"RECREATE");
+      filewrite = new TFile(TString::Format("f2b_SimpleCail_%s.root",outputname).Data(),"RECREATE");
       max_ch = max_ch_f;
     }
   if(!filewrite->IsOpen())
@@ -144,11 +144,11 @@ void cailbration::SimpleCail(const char *inputrootfilename,const char *outputnam
   std::ofstream writetxt;
   if(fb)
     {
-      writetxt.open(TString::Format("%s_SampleCail_2f%02d.txt",outputname,ref).Data());
+      writetxt.open(TString::Format("%s_SimpleCail_2f%02d.txt",outputname,ref).Data());
     }
   else
     {
-      writetxt.open(TString::Format("%s_SampleCail_2b%02d.txt",outputname,ref).Data());
+      writetxt.open(TString::Format("%s_SimpleCail_2b%02d.txt",outputname,ref).Data());
     }
   if(!writetxt.is_open())
     {
@@ -187,7 +187,7 @@ void cailbration::GetSimpleCailPar(const char *inoutfilename,int b,int f)
   
   std::ifstream readtxt;
   
-  readtxt.open(TString::Format("%s_SampleCail_2b%02d.txt",inoutfilename,b).Data());
+  readtxt.open(TString::Format("%s_SimpleCail_2b%02d.txt",inoutfilename,b).Data());
   if(!readtxt.is_open())
     {
       std::cout<<"can't open file."<<std::endl;
@@ -198,7 +198,7 @@ void cailbration::GetSimpleCailPar(const char *inoutfilename,int b,int f)
     }
   readtxt.close();
 
-  readtxt.open(TString::Format("%s_SampleCail_2f%02d.txt",inoutfilename,f).Data());
+  readtxt.open(TString::Format("%s_SimpleCail_2f%02d.txt",inoutfilename,f).Data());
   if(!readtxt.is_open())
     {
       std::cout<<"can't open file."<<std::endl;
@@ -212,7 +212,7 @@ void cailbration::GetSimpleCailPar(const char *inoutfilename,int b,int f)
 
   std::ofstream writetxt;
   
-  writetxt.open(TString::Format("%s_SampleCail_2f.txt",inoutfilename).Data());
+  writetxt.open(TString::Format("%s_SimpleCail_2f.txt",inoutfilename).Data());
   if(!writetxt.is_open())
     {
       std::cout<<"can't open file."<<std::endl;
@@ -229,7 +229,7 @@ void cailbration::GetSimpleCailPar(const char *inoutfilename,int b,int f)
   writetxt.close();
 
 
-  writetxt.open(TString::Format("%s_SampleCail_2b.txt",inoutfilename).Data());
+  writetxt.open(TString::Format("%s_SimpleCail_2b.txt",inoutfilename).Data());
   if(!writetxt.is_open())
     {
       std::cout<<"can't open file."<<std::endl;
@@ -259,7 +259,7 @@ void cailbration::TestSimpleCailEffect(const char *inputrootfilename,const char 
   
   std::ifstream readtxt;
   
-  readtxt.open(TString::Format("%s_SampleCail_2b.txt",parfilename).Data());
+  readtxt.open(TString::Format("%s_SimpleCail_2b.txt",parfilename).Data());
   if(!readtxt.is_open())
     {
       std::cout<<"can't open file."<<std::endl;
@@ -274,7 +274,7 @@ void cailbration::TestSimpleCailEffect(const char *inputrootfilename,const char 
     }
   readtxt.close();
 
-  readtxt.open(TString::Format("%s_SampleCail_2f.txt",parfilename).Data());
+  readtxt.open(TString::Format("%s_SimpleCail_2f.txt",parfilename).Data());
   if(!readtxt.is_open())
     {
       std::cout<<"can't open file."<<std::endl;
